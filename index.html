@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Birthday Message 🎂</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family:
+        -apple-system,
+        BlinkMacSystemFont,
+        "Hiragino Kaku Gothic ProN",
+        "Yu Gothic",
+        sans-serif;
+      background:
+        radial-gradient(
+          circle at top,
+          #fff8fb 0%,
+          #ffeaf2 45%,
+          #ffd8e7 100%
+        );
+      color: #333;
+      padding: 20px 15px 50px;
+    }
+    .container {
+      width: 100%;
+      max-width: 600px;
+      margin: auto;
+    }
+    /* ===== 上の部分 ===== */
+    .hero {
+      text-align: center;
+      padding: 25px 10px 15px;
+    }
+    .cake {
+      font-size: 65px;
+      animation: float 2s ease-in-out infinite;
+    }
+    @keyframes float {
+      0%, 100% {
+        transform: translateY(0);
+      }
+      50% {
+        transform: translateY(-8px);
+      }
+    }
+    h1 {
+      margin: 5px 0;
+      font-size: 32px;
+    }
+    .subtitle {
+      color: #777;
+      margin-top: 8px;
+      font-size: 15px;
+    }
+    /* ===== 入力フォーム ===== */
+    .form-card {
+      background: rgba(255,255,255,0.95);
+      padding: 22px;
+      border-radius: 24px;
+      box-shadow:
+        0 8px 30px rgba(0,0,0,0.08);
+      margin-top: 15px;
+    }
+    label {
+      display: block;
+      font-weight: bold;
+      margin: 15px 0 7px;
+    }
+    input,
+    textarea {
+      width: 100%;
+      border: 1px solid #ddd;
+      border-radius: 14px;
+      padding: 13px;
+      font-size: 16px;
+      font-family: inherit;
+      outline: none;
+      background: #fff;
+    }
+    input:focus,
+    textarea:focus {
+      border-color: #ff78a6;
+      box-shadow:
+        0 0 0 3px rgba(255,120,166,0.15);
+    }
+    textarea {
+      min-height: 120px;
+      resize: vertical;
+    }
+    /* ===== 送信ボタン ===== */
+    button {
+      width: 100%;
+      border: 0;
+      border-radius: 15px;
+      padding: 15px;
+      margin-top: 18px;
+      font-size: 17px;
+      font-weight: bold;
+      color: white;
+      background:
+        linear-gradient(
+          135deg,
+          #ff72a2,
+          #ff9abb
+        );
+      box-shadow:
+        0 6px 15px rgba(255,100,150,0.25);
+    }
+    button:active {
+      transform: scale(0.98);
+    }
+    button:disabled {
+      opacity: 0.6;
+    }
+    /* ===== 状態表示 ===== */
+    .status {
+      text-align: center;
+      margin-top: 12px;
+      min-height: 22px;
+      font-size: 14px;
+    }
+    .error {
+      color: #d33;
+    }
+    .success {
+      color: #e05282;
+    }
+    /* ===== メッセージ一覧 ===== */
+    .messages-title {
+      text-align: center;
+      margin:
+        35px 0 8px;
+      font-size: 24px;
+    }
+    .message-count {
+      text-align: center;
+      color: #888;
+      font-size: 14px;
+      margin-bottom: 18px;
+    }
+    /* ===== カード ===== */
+    .message-card {
+      background: white;
+      border-radius: 20px;
+      padding: 18px;
+      margin-bottom: 14px;
+      box-shadow:
+        0 6px 20px rgba(0,0,0,0.07);
+      animation:
+        appear 0.35s ease;
+    }
+    @keyframes appear {
+      from {
+        opacity: 0;
+        transform: translateY(8px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    .message-name {
+      font-weight: bold;
+      font-size: 17px;
+    }
+    .message-text {
+      white-space: pre-wrap;
+      line-height: 1.7;
+      margin-top: 9px;
+    }
+    .message-date {
+      color: #aaa;
+      font-size: 12px;
+      margin-top: 10px;
+      text-align: right;
+    }
+    .empty {
+      text-align: center;
+      color: #888;
+      padding: 20px;
+    }
+    /* ===== フッター ===== */
+    .footer {
+      text-align: center;
+      color: #aaa;
+      font-size: 12px;
+      margin-top: 35px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- =========================
+         誕生日タイトル
+    ========================== -->
+    <div class="hero">
+      <div class="cake">
+        🎂
+      </div>
+      <h1>
+        Happy Birthday!
+      </h1>
+      <div class="subtitle">
+        お祝いメッセージを送ってね 💌
+      </div>
+    </div>
+    <!-- =========================
+         メッセージ送信フォーム
+    ========================== -->
+    <div class="form-card">
+      <label for="name">
+        送信主の名前
+      </label>
+      <input
+        id="name"
+        type="text"
+        maxlength="30"
+        placeholder="例：たろう"
+      >
+      <label for="message">
+        メッセージ
+      </label>
+      <textarea
+        id="message"
+        maxlength="300"
+        placeholder="誕生日おめでとう！！🎉"
+      ></textarea>
+      <button id="sendButton">
+        メッセージを送る 🎉
+      </button>
+      <div
+        id="status"
+        class="status"
+      ></div>
+    </div>
+    <!-- =========================
+         メッセージ一覧
+    ========================== -->
+    <h2 class="messages-title">
+      💌 みんなからのメッセージ
+    </h2>
+    <div
+      id="messageCount"
+      class="message-count"
+    >
+      0件のメッセージ
+    </div>
+    <div id="messages">
+      <div class="empty">
+        読み込み中...
+      </div>
+    </div>
+    <div class="footer">
+      Birthday Message
+    </div>
+  </div>
+<script>
+/* ==================================================
+   Supabase設定
+   ==================================================
+   ↓↓↓ ここだけ自分のSupabase情報に変更 ↓↓↓
+*/
+const SUPABASE_URL =
+  "ここにSupabaseのProject URL";
+const SUPABASE_KEY =
+  "ここにSupabaseのPublishable key";
+/* ==================================================
+   Supabase接続
+================================================== */
+const supabaseClient =
+  supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_KEY
+  );
+/* ==================================================
+   HTML要素
+================================================== */
+const nameInput =
+  document.getElementById("name");
+const messageInput =
+  document.getElementById("message");
+const sendButton =
+  document.getElementById("sendButton");
+const status =
+  document.getElementById("status");
+const messages =
+  document.getElementById("messages");
+const messageCount =
+  document.getElementById("messageCount");
+/* ==================================================
+   メッセージ読み込み
+================================================== */
+async function loadMessages() {
+  messages.innerHTML =
+    '<div class="empty">読み込み中...</div>';
+  const { data, error } =
+    await supabaseClient
+      .from("birthday_messages")
+      .select("*")
+      .order(
+        "created_at",
+        {
+          ascending: false
+        }
+      );
+  /* エラー */
+  if (error) {
+    console.error(error);
+    messages.innerHTML =
+      '<div class="empty error">' +
+      'メッセージを読み込めませんでした。' +
+      '</div>';
+    messageCount.textContent =
+      "読み込みエラー";
+    return;
+  }
+  /* 件数 */
+  messageCount.textContent =
+    `${data.length}件のメッセージ`;
+  /* メッセージ0件 */
+  if (!data || data.length === 0) {
+    messages.innerHTML =
+      '<div class="empty">' +
+      'まだメッセージはありません 💌' +
+      '</div>';
+    return;
+  }
+  /* 一度空にする */
+  messages.innerHTML = "";
+  /* メッセージを1つずつ表示 */
+  data.forEach(item => {
+    /* カード */
+    const card =
+      document.createElement("div");
+    card.className =
+      "message-card";
+    /* 送信主 */
+    const name =
+      document.createElement("div");
+    name.className =
+      "message-name";
+    name.textContent =
+      "💌 " + item.name;
+    /* 本文 */
+    const text =
+      document.createElement("div");
+    text.className =
+      "message-text";
+    text.textContent =
+      item.message;
+    /* 日時 */
+    const date =
+      document.createElement("div");
+    date.className =
+      "message-date";
+    const d =
+      new Date(item.created_at);
+    date.textContent =
+      d.toLocaleString("ja-JP");
+    /* カードに追加 */
+    card.appendChild(name);
+    card.appendChild(text);
+    card.appendChild(date);
+    /* ページに追加 */
+    messages.appendChild(card);
+  });
+}
+/* ==================================================
+   メッセージ送信
+================================================== */
+sendButton.addEventListener(
+  "click",
+  async () => {
+    /* 入力取得 */
+    const name =
+      nameInput.value.trim();
+    const message =
+      messageInput.value.trim();
+    /* 名前チェック */
+    if (!name) {
+      status.textContent =
+        "送信主の名前を入力してね！";
+      status.className =
+        "status error";
+      return;
+    }
+    /* メッセージチェック */
+    if (!message) {
+      status.textContent =
+        "メッセージを入力してね！";
+      status.className =
+        "status error";
+      return;
+    }
+    /* 送信中 */
+    sendButton.disabled =
+      true;
+    sendButton.textContent =
+      "送信中...";
+    /* Supabaseへ保存 */
+    const { error } =
+      await supabaseClient
+        .from("birthday_messages")
+        .insert([
+          {
+            name: name,
+            message: message
+          }
+        ]);
+    /* エラー */
+    if (error) {
+      console.error(error);
+      status.textContent =
+        "送信できませんでした。";
+      status.className =
+        "status error";
+    }
+    /* 成功 */
+    else {
+      status.textContent =
+        "メッセージを送ったよ！🎉";
+      status.className =
+        "status success";
+      /* 入力欄を空にする */
+      nameInput.value = "";
+      messageInput.value = "";
+      /* 一覧を更新 */
+      await loadMessages();
+    }
+    /* ボタンを戻す */
+    sendButton.disabled =
+      false;
+    sendButton.textContent =
+      "メッセージを送る 🎉";
+  }
+);
+/* ==================================================
+   ページを開いたときに読み込み
+================================================== */
+loadMessages();
+</script>
+</body>
+</html>
